@@ -1,24 +1,8 @@
 # ClickHouse Agent Skills
 
-The official Agent Skills for [ClickHouse](https://clickhouse.com/). These skills help LLMs and agents to adopt best practices when working with ClickHouse.
-
-You can use these skills with open-source ClickHouse and managed ClickHouse Cloud. [Try ClickHouse Cloud with $300 in free credits](https://clickhouse.com/cloud?utm_medium=github&utm_source=github&utm_ref=agent-skills).
-
-## Installation
-
-```bash
-npx skills add clickhouse/agent-skills
-```
-
-The CLI auto-detects installed agents and prompts you to select where to install.
-
-## What is this?
-
-Agent Skills are packaged instructions that extend AI coding agents (Claude Code, Cursor, Copilot, etc.) with domain-specific expertise. This repository provides skills for ClickHouse databases—covering schema design, query optimization, and data ingestion patterns.
+Agent Skills that help LLMs and agents adopt best practices when working with ClickHouse. These skills cover schema design, query optimization, and data ingestion patterns.
 
 When an agent loads these skills, it gains knowledge of ClickHouse best practices and can apply them while helping you design tables, write queries, or troubleshoot performance issues.
-
-Skills follow the open specification at [agentskills.io](https://agentskills.io).
 
 ## Available Skills
 

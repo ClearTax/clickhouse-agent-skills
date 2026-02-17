@@ -2,12 +2,6 @@
 
 Agent skill providing comprehensive ClickHouse guidance for schema design, query optimization, and data ingestion.
 
-## Installation
-
-```bash
-npx add-skill ClickHouse/clickhouse-agent-skills
-```
-
 ## What's Included
 
 **28 atomic rules** organized by prefix:
