@@ -1,15 +1,16 @@
 ---
 name: clickhouse-best-practices
-description: MUST USE when reviewing ClickHouse schemas, queries, or configurations. Contains 28 rules that MUST be checked before providing recommendations. Always read relevant rule files and cite specific rules in responses.
+description: Comprehensive ClickHouse best practices for schema design, query optimization, and data ingestion. Use when user says "create a ClickHouse table", "optimize this query", "why is this query slow", "design a schema for", or works with CREATE TABLE, ORDER BY, JOINs, or INSERT patterns. Covers 28 rules across primary keys, data types, partitioning, JOINs, and mutations. Do NOT use for general SQL databases (PostgreSQL, MySQL, SQLite) — this is specific to ClickHouse MergeTree engine family.
 license: Apache-2.0
+compatibility: Requires ClickHouse 24.1+. Works with open-source ClickHouse and ClickHouse Cloud.
 metadata:
-  author: ClickHouse Inc
-  version: "0.3.0"
+  author: ClearTax
+  version: "0.4.0"
 ---
 
 # ClickHouse Best Practices
 
-Comprehensive guidance for ClickHouse covering schema design, query optimization, and data ingestion. Contains 28 rules across 3 main categories (schema, query, insert), prioritized by impact.
+28 rules covering schema design, query optimization, and data ingestion for ClickHouse — prioritized by impact.
 
 > **Official docs:** [ClickHouse Best Practices](https://clickhouse.com/docs/best-practices)
 
@@ -19,106 +20,16 @@ Comprehensive guidance for ClickHouse covering schema design, query optimization
 
 1. **Check for applicable rules** in the `rules/` directory
 2. **If rules exist:** Apply them and cite them in your response using "Per `rule-name`..."
-3. **If no rule exists:** Use the LLM's ClickHouse knowledge or search documentation
+3. **If no rule exists:** Use ClickHouse knowledge or search documentation
 4. **If uncertain:** Use web search for current best practices
 5. **Always cite your source:** rule name, "general ClickHouse guidance", or URL
 
 **Why rules take priority:** ClickHouse has specific behaviors (columnar storage, sparse indexes, merge tree mechanics) where general database intuition can be misleading. The rules encode validated, ClickHouse-specific guidance.
 
-### For Formal Reviews
-
-When performing a formal review of schemas, queries, or data ingestion:
-
----
-
-## Review Procedures
-
-### For Schema Reviews (CREATE TABLE, ALTER TABLE)
-
-**Read these rule files in order:**
-
-1. `rules/schema-pk-plan-before-creation.md` - ORDER BY is immutable
-2. `rules/schema-pk-cardinality-order.md` - Column ordering in keys
-3. `rules/schema-pk-prioritize-filters.md` - Filter column inclusion
-4. `rules/schema-types-native-types.md` - Proper type selection
-5. `rules/schema-types-minimize-bitwidth.md` - Numeric type sizing
-6. `rules/schema-types-lowcardinality.md` - LowCardinality usage
-7. `rules/schema-types-avoid-nullable.md` - Nullable vs DEFAULT
-8. `rules/schema-partition-low-cardinality.md` - Partition count limits
-9. `rules/schema-partition-lifecycle.md` - Partitioning purpose
-
-**Check for:**
-- [ ] PRIMARY KEY / ORDER BY column order (low-to-high cardinality)
-- [ ] Data types match actual data ranges
-- [ ] LowCardinality applied to appropriate string columns
-- [ ] Partition key cardinality bounded (100-1,000 values)
-- [ ] ReplacingMergeTree has version column if used
-
-### For Query Reviews (SELECT, JOIN, aggregations)
-
-**Read these rule files:**
-
-1. `rules/query-join-choose-algorithm.md` - Algorithm selection
-2. `rules/query-join-filter-before.md` - Pre-join filtering
-3. `rules/query-join-use-any.md` - ANY vs regular JOIN
-4. `rules/query-index-skipping-indices.md` - Secondary index usage
-5. `rules/schema-pk-filter-on-orderby.md` - Filter alignment with ORDER BY
-
-**Check for:**
-- [ ] Filters use ORDER BY prefix columns
-- [ ] JOINs filter tables before joining (not after)
-- [ ] Correct JOIN algorithm for table sizes
-- [ ] Skipping indices for non-ORDER BY filter columns
-
-### For Insert Strategy Reviews (data ingestion, updates, deletes)
-
-**Read these rule files:**
-
-1. `rules/insert-batch-size.md` - Batch sizing requirements
-2. `rules/insert-mutation-avoid-update.md` - UPDATE alternatives
-3. `rules/insert-mutation-avoid-delete.md` - DELETE alternatives
-4. `rules/insert-async-small-batches.md` - Async insert usage
-5. `rules/insert-optimize-avoid-final.md` - OPTIMIZE TABLE risks
-
-**Check for:**
-- [ ] Batch size 10K-100K rows per INSERT
-- [ ] No ALTER TABLE UPDATE for frequent changes
-- [ ] ReplacingMergeTree or CollapsingMergeTree for update patterns
-- [ ] Async inserts enabled for high-frequency small batches
-
----
-
-## Output Format
-
-Structure your response as follows:
-
-```
-## Rules Checked
-- `rule-name-1` - Compliant / Violation found
-- `rule-name-2` - Compliant / Violation found
-...
-
-## Findings
-
-### Violations
-- **`rule-name`**: Description of the issue
-  - Current: [what the code does]
-  - Required: [what it should do]
-  - Fix: [specific correction]
-
-### Compliant
-- `rule-name`: Brief note on why it's correct
-
-## Recommendations
-[Prioritized list of changes, citing rules]
-```
-
----
-
 ## Rule Categories by Priority
 
-| Priority | Category | Impact | Prefix | Rule Count |
-|----------|----------|--------|--------|------------|
+| Priority | Category | Impact | Prefix | Rules |
+|----------|----------|--------|--------|-------|
 | 1 | Primary Key Selection | CRITICAL | `schema-pk-` | 4 |
 | 2 | Data Type Selection | CRITICAL | `schema-types-` | 5 |
 | 3 | JOIN Optimization | CRITICAL | `query-join-` | 5 |
@@ -131,79 +42,11 @@ Structure your response as follows:
 | 10 | OPTIMIZE Avoidance | HIGH | `insert-optimize-` | 1 |
 | 11 | JSON Usage | MEDIUM | `schema-json-` | 1 |
 
----
-
-## Quick Reference
-
-### Schema Design - Primary Key (CRITICAL)
-
-- `schema-pk-plan-before-creation` - Plan ORDER BY before table creation (immutable)
-- `schema-pk-cardinality-order` - Order columns low-to-high cardinality
-- `schema-pk-prioritize-filters` - Include frequently filtered columns
-- `schema-pk-filter-on-orderby` - Query filters must use ORDER BY prefix
-
-### Schema Design - Data Types (CRITICAL)
-
-- `schema-types-native-types` - Use native types, not String for everything
-- `schema-types-minimize-bitwidth` - Use smallest numeric type that fits
-- `schema-types-lowcardinality` - LowCardinality for <10K unique strings
-- `schema-types-enum` - Enum for finite value sets with validation
-- `schema-types-avoid-nullable` - Avoid Nullable; use DEFAULT instead
-
-### Schema Design - Partitioning (HIGH)
-
-- `schema-partition-low-cardinality` - Keep partition count 100-1,000
-- `schema-partition-lifecycle` - Use partitioning for data lifecycle, not queries
-- `schema-partition-query-tradeoffs` - Understand partition pruning trade-offs
-- `schema-partition-start-without` - Consider starting without partitioning
-
-### Schema Design - JSON (MEDIUM)
-
-- `schema-json-when-to-use` - JSON for dynamic schemas; typed columns for known
-
-### Query Optimization - JOINs (CRITICAL)
-
-- `query-join-choose-algorithm` - Select algorithm based on table sizes
-- `query-join-use-any` - ANY JOIN when only one match needed
-- `query-join-filter-before` - Filter tables before joining
-- `query-join-consider-alternatives` - Dictionaries/denormalization vs JOIN
-- `query-join-null-handling` - join_use_nulls=0 for default values
-
-### Query Optimization - Indices (HIGH)
-
-- `query-index-skipping-indices` - Skipping indices for non-ORDER BY filters
-
-### Query Optimization - Materialized Views (HIGH)
-
-- `query-mv-incremental` - Incremental MVs for real-time aggregations
-- `query-mv-refreshable` - Refreshable MVs for complex joins
-
-### Insert Strategy - Batching (CRITICAL)
-
-- `insert-batch-size` - Batch 10K-100K rows per INSERT
-
-### Insert Strategy - Async (HIGH)
-
-- `insert-async-small-batches` - Async inserts for high-frequency small batches
-- `insert-format-native` - Native format for best performance
-
-### Insert Strategy - Mutations (CRITICAL)
-
-- `insert-mutation-avoid-update` - ReplacingMergeTree instead of ALTER UPDATE
-- `insert-mutation-avoid-delete` - Lightweight DELETE or DROP PARTITION
-
-### Insert Strategy - Optimization (HIGH)
-
-- `insert-optimize-avoid-final` - Let background merges work
-
----
-
 ## When to Apply
 
 This skill activates when you encounter:
 
-- `CREATE TABLE` statements
-- `ALTER TABLE` modifications
+- `CREATE TABLE` or `ALTER TABLE` statements
 - `ORDER BY` or `PRIMARY KEY` discussions
 - Data type selection questions
 - Slow query troubleshooting
@@ -213,7 +56,58 @@ This skill activates when you encounter:
 - ReplacingMergeTree or other specialized engine usage
 - Partitioning strategy decisions
 
----
+**Do NOT activate for:** General SQL questions targeting PostgreSQL, MySQL, SQLite, or other non-ClickHouse databases.
+
+## Examples
+
+### Example 1: Create a table for user events
+
+User says: "Create a table for storing user events with user_id, event_type, properties, and timestamp"
+
+1. Read `rules/schema-pk-plan-before-creation.md` — plan ORDER BY based on query patterns
+2. Read `rules/schema-types-native-types.md` — use DateTime not String for timestamp
+3. Read `rules/schema-types-lowcardinality.md` — apply LowCardinality to event_type
+4. Read `rules/schema-partition-start-without.md` — consider if partitioning is needed
+5. Apply rules and cite them: "Per `schema-pk-cardinality-order`, columns are ordered low-to-high cardinality"
+
+Result: Table with query-driven primary key, proper types, bounded partitions.
+
+### Example 2: Optimize a slow JOIN query
+
+User says: "This JOIN query is taking too long"
+
+1. Read `rules/query-join-filter-before.md` — check if tables are filtered before joining
+2. Read `rules/query-join-choose-algorithm.md` — verify correct algorithm for table sizes
+3. Read `rules/query-join-use-any.md` — check if ANY JOIN applies
+4. Read `rules/schema-pk-filter-on-orderby.md` — verify filters align with ORDER BY
+
+Result: Optimized query with pre-filtered tables and correct JOIN algorithm.
+
+## For Formal Reviews
+
+When performing a formal review, consult `references/review-procedures.md` for:
+- Schema review checklist (CREATE TABLE, ALTER TABLE)
+- Query review checklist (SELECT, JOIN, aggregations)
+- Insert strategy review checklist (data ingestion, updates, deletes)
+
+For structured output formatting, consult `references/output-format.md`.
+
+For the full rule listing by category, consult `references/quick-reference.md`.
+
+## Common Mistakes to Watch For
+
+- **String overuse**: Using `String` for dates, numbers, or low-cardinality values instead of native types
+- **Wrong ORDER BY**: Choosing ORDER BY columns without analyzing query patterns — this is immutable
+- **Too many partitions**: Partition key with >1,000 values causes excessive parts and slow queries
+- **Post-JOIN filtering**: Filtering after JOIN instead of before, scanning unnecessary data
+- **Using ALTER UPDATE**: Using mutations for frequent updates instead of ReplacingMergeTree
+- **Small INSERT batches**: Inserting <10K rows per batch without async inserts enabled
+
+## Performance Notes
+
+- Take your time to check all applicable rules thoroughly
+- Quality is more important than speed — a wrong ORDER BY is permanent
+- Do not skip validation checklists for schema reviews
 
 ## Rule File Structure
 
@@ -224,8 +118,6 @@ Each rule file in `rules/` contains:
 - **Incorrect example**: Anti-pattern with explanation
 - **Correct example**: Best practice with explanation
 - **Additional context**: Trade-offs, when to apply, references
-
----
 
 ## Full Compiled Document
 

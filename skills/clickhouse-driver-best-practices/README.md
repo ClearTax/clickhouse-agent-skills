@@ -1,6 +1,6 @@
-# ClickHouse Best Practices
+# ClickHouse Driver Best Practices
 
-Agent skill providing comprehensive ClickHouse guidance for schema design, query optimization, and data ingestion.
+Agent skill for building reliable ClickHouse client libraries and Spring Boot integrations.
 
 For full details, trigger phrases, and rule prefixes, see the [main README](../../README.md).
 
@@ -9,11 +9,11 @@ For full details, trigger phrases, and rule prefixes, see the [main README](../.
 | File | Purpose |
 |------|---------|
 | `SKILL.md` | Skill definition — instructions, examples, and references |
-| `AGENTS.md` | Complete rule reference (auto-generated) |
 | `rules/*.md` | Individual rule definitions |
-| `references/` | Review checklists, output format, quick reference |
+| `references/` | Review checklist |
 | `metadata.json` | Version, compatibility, and metadata |
 
 ## Related Documentation
 
-- [ClickHouse Best Practices](https://clickhouse.com/docs/best-practices)
+- [ClickHouse Java Client](https://github.com/ClickHouse/clickhouse-java)
+- [ClickHouse JDBC Driver](https://clickhouse.com/docs/integrations/java/jdbc-driver)

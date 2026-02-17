@@ -1,8 +1,8 @@
 # ClickHouse Agent Skills
 
-Agent Skills that help LLMs and agents adopt best practices when working with ClickHouse. These skills cover schema design, query optimization, and data ingestion patterns.
+Agent Skills that help LLMs and agents adopt best practices when working with ClickHouse. These skills cover schema design, query optimization, data ingestion patterns, and driver/client library development.
 
-When an agent loads these skills, it gains knowledge of ClickHouse best practices and can apply them while helping you design tables, write queries, or troubleshoot performance issues.
+When an agent loads these skills, it gains knowledge of ClickHouse best practices and can apply them while helping you design tables, write queries, troubleshoot performance issues, or build ClickHouse integrations.
 
 ## Available Skills
 
@@ -24,11 +24,70 @@ When an agent loads these skills, it gains knowledge of ClickHouse best practice
 | OPTIMIZE Avoidance | 1 | HIGH |
 | JSON Usage | 1 | MEDIUM |
 
+**28 atomic rules** organized by prefix:
+
+| Prefix | Count | Coverage |
+|--------|-------|----------|
+| `schema-pk-*` | 4 | PRIMARY KEY selection, cardinality ordering |
+| `schema-types-*` | 5 | Data types, LowCardinality, Nullable |
+| `schema-partition-*` | 4 | Partitioning strategy, lifecycle management |
+| `schema-json-*` | 1 | JSON type usage |
+| `query-join-*` | 5 | JOIN algorithms, filtering, alternatives |
+| `query-index-*` | 1 | Data skipping indices |
+| `query-mv-*` | 2 | Incremental and refreshable MVs |
+| `insert-batch-*` | 1 | Batch sizing (10K-100K rows) |
+| `insert-async-*` | 2 | Async inserts, data formats |
+| `insert-mutation-*` | 2 | Mutation avoidance |
+| `insert-optimize-*` | 1 | OPTIMIZE FINAL avoidance |
+
+**Trigger phrases** — the skill activates when you say:
+- "Create a table for..."
+- "Optimize this query..."
+- "Design a schema for..."
+- "Why is this query slow?"
+- "How should I insert data into..."
+- "Should I use UPDATE or..."
+
 **Location:** [`skills/clickhouse-best-practices/`](./skills/clickhouse-best-practices/)
 
 **For humans:** Read [SKILL.md](./skills/clickhouse-best-practices/SKILL.md) for an overview, or [AGENTS.md](./skills/clickhouse-best-practices/AGENTS.md) for the complete compiled guide.
 
 **For agents:** The skill activates automatically when you work with ClickHouse—creating tables, writing queries, or designing data pipelines.
+
+### ClickHouse Driver Best Practices
+
+**12 rules** for building reliable ClickHouse client libraries and integrations.
+
+| Category | Rules | Impact |
+|----------|-------|--------|
+| Retry & Resilience | 3 | CRITICAL |
+| Connection Management | 3 | CRITICAL |
+| Query Execution | 3 | HIGH |
+| Observability | 3 | HIGH |
+
+**12 rules** organized by prefix:
+
+| Prefix | Count | Coverage |
+|--------|-------|----------|
+| `retry-*` | 3 | Transient error retry, transparent proxy, structured logging |
+| `conn-*` | 3 | Annotation-driven activation, optional injection, timeouts |
+| `query-*` | 3 | Mutation IDs, timeout polling, format selection |
+| `obs-*` | 3 | Query timing, response cleanup, named parameters |
+
+**Trigger phrases** — the skill activates when you say:
+- "Build a ClickHouse client..."
+- "Configure ClickHouse connection..."
+- "Add retry to ClickHouse..."
+- "Handle ClickHouse timeouts..."
+- "Write a ClickHouse driver..."
+
+**Location:** [`skills/clickhouse-driver-best-practices/`](./skills/clickhouse-driver-best-practices/)
+
+**For humans:** Read [SKILL.md](./skills/clickhouse-driver-best-practices/SKILL.md) for an overview.
+
+**For agents:** The skill activates automatically when you work with ClickHouse client/driver code.
+
+---
 
 ## Quick Start
 

@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "organization": "ClearTax",
+  "date": "February 2026",
+  "clickhouseVersion": "24.1+",
+  "abstract": "Best practices for building ClickHouse client libraries and Spring Boot integrations. Covers connection management, retry policies, timeout handling, query execution patterns, and observability. Based on production patterns from ClearTax's ClickHouse driver wrapper.",
+  "references": [
+    "https://clickhouse.com/docs",
+    "https://github.com/ClickHouse/clickhouse-java"
+  ]
+}
